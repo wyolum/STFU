@@ -1,6 +1,10 @@
 /*
+  Modified from:
    ESP8266 + FastLED + IR Remote: https://github.com/jasoncoon/esp8266-fastled-webserver
    Copyright (C) 2015-2016 Jason Coon
+
+ by Justin Shaw
+    WyoLum.com
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -90,19 +94,10 @@ PixelFont font_8x8 = PixelFont(8, 8, 8, font8x8,
 
 const bool MatrixSerpentineLayout = true;
 
-#define MILLI_AMPS         1000     // IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
-#define FRAMES_PER_SECOND  120 // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
+#define MILLI_AMPS         1000  // IMPORTANT: set the max milli-Amps of your power supply (4A = 4000mA)
+#define FRAMES_PER_SECOND  120   // here you can control the speed. With the Access Point / Web Server the animations run a bit slower.
 
 CRGB leds[NUM_LEDS];
-
-int32_t last_lag_ms = 0;
-uint32_t local_hack = 0;
-uint32_t local_hack_ms = 0;
-uint32_t local_hack_us = 0;
-uint16_t ms_per_second = 1000;   // may change to correct clock drift
-uint32_t current_time;
-uint32_t last_update_time = 0;// larger than initialization time
-bool clock_initialized = false;
 
 const uint8_t brightnessCount = 5;
 uint8_t brightnessMap[brightnessCount] = { 16, 32, 64, 128, 255 };
@@ -233,72 +228,12 @@ typedef PatternAndName PatternAndNameList[];
 #include "Map.h"
 #include "Noise.h"
 
-void clock();
 // List of patterns to cycle through.  Each is defined as a separate function below.
-
 PatternAndNameList patterns = {
+  { stfu,                   "STFU!"},
+  { thx,                    "Thanks"},
   { pride,                  "Pride" },
-  { pride2,                 "Pride 2" },
-  { colorWaves,             "Color Waves" },
-  { colorWaves2,            "Color Waves 2" },
-  
-  // 3d noise patterns
-  { xyMatrixTest,           "Matrix Test" },
-
-  { verticalPalette,           "Vertical Palette" },
-  { diagonalPalette,           "Diagonal Palette" },
-  { horizontalPalette,         "Horizontal Palette" },
-
-  { verticalGradientPalette,   "Vertical Gradient Palette" },
-  { diagonalGradientPalette,   "Diagonal Gradient Palette" },
-  { horizontalGradientPalette, "Horizontal Gradient Palette" },
-
-  // noise patterns
-  { fireNoise, "Fire Noise" },
-  { fireNoise2, "Fire Noise 2" },
-  { lavaNoise, "Lava Noise" },
-  { rainbowNoise, "Rainbow Noise" },
-  { rainbowStripeNoise, "Rainbow Stripe Noise" },
-  { partyNoise, "Party Noise" },
-  { forestNoise, "Forest Noise" },
-  { cloudNoise, "Cloud Noise" },
-  { oceanNoise, "Ocean Noise" },
-  { blackAndWhiteNoise, "Black & White Noise" },
-  { blackAndBlueNoise, "Black & Blue Noise" },
-
-  // twinkle patterns
-  /*
-    { rainbowTwinkles,        "Rainbow Twinkles" },
-    { snowTwinkles,           "Snow Twinkles" },
-    { cloudTwinkles,          "Cloud Twinkles" },
-    { incandescentTwinkles,   "Incandescent Twinkles" },
-    
-    // TwinkleFOX patterns
-    { retroC9Twinkles,        "Retro C9 Twinkles" },
-    { redWhiteTwinkles,       "Red & White Twinkles" },
-    { blueWhiteTwinkles,      "Blue & White Twinkles" },
-    { redGreenWhiteTwinkles,  "Red, Green & White Twinkles" },
-    { fairyLightTwinkles,     "Fairy Light Twinkles" },
-    { snow2Twinkles,          "Snow 2 Twinkles" },
-    { hollyTwinkles,          "Holly Twinkles" },
-    { iceTwinkles,            "Ice Twinkles" },
-    { partyTwinkles,          "Party Twinkles" },
-    { forestTwinkles,         "Forest Twinkles" },
-    { lavaTwinkles,           "Lava Twinkles" },
-    { fireTwinkles,           "Fire Twinkles" },
-    { cloud2Twinkles,         "Cloud 2 Twinkles" },
-    { oceanTwinkles,          "Ocean Twinkles" },
-  */
-  { rainbow,                "Rainbow" },
-  { rainbowWithGlitter,     "Rainbow With Glitter" },
-  { rainbowSolid,           "Solid Rainbow" },
-  { confetti,               "Confetti" },
-  { sinelon,                "Sinelon" },
-  { bpm,                    "Beat" },
-  { juggle,                 "Juggle" },
-  //{ fire,                   "Fire" },
-  //{ water,                  "Water" },
-
+  { off,                    "Off"},
   { showSolidColor,         "Solid Color" }
 };
 
@@ -426,12 +361,6 @@ void setup() {
     String value = webServer.arg("value");
     setPower(value.toInt());
     sendInt(power);
-  });
-
-  webServer.on("/display_clock", HTTP_POST, []() {
-    String value = webServer.arg("value");
-    setDisplayClock(value.toInt());
-    sendInt(display_clock);
   });
 
   webServer.on("/cooling", HTTP_POST, []() {
@@ -604,22 +533,13 @@ void loop() {
     gHue++;  // slowly cycle the "base color" through the rainbow
   }
 
-  if (autoplay && (millis() > autoPlayTimeout)) {
-    adjustPattern(true);
-    autoPlayTimeout = millis() + (autoplayDuration * 1000);
-  }
-
   // Call the current pattern function once, updating the 'leds' array
   patterns[currentPatternIndex].pattern();
-  //patterns[0].pattern();
-  if(display_clock){
-    clock();
-  }
+
   FastLED.show();
 
   // insert a delay to keep the framerate modest
   FastLED.delay(1000 / FRAMES_PER_SECOND);
-
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
@@ -1441,36 +1361,6 @@ void scrollLeft(uint8_t n_col){
   }
 }
 
-void getHHMMSS(uint32_t tm, uint8_t *hhmmss){
-  hhmmss[0] = (tm / 3600) % 24;
-  hhmmss[1] = (tm / 60) % 60;
-  hhmmss[2] = (tm) % 60;
-}
-// preceed with a call to fillMask(false);
-// set mask to true where digit should light
-void digit(byte start, byte d){
-  byte row, col;
-  for(col = 0; col < 4; col++){
-    for(row = 0; row < 8; row++){
-      if((digits4x8[d * 8 + row] >> col) & 1){
-	setPixel(row, col + start, true);
-      }
-      else{
-      }
-    }
-  }
-}
-void displayTime(uint32_t tm){
-  uint8_t hhmmss[3];
-  getHHMMSS(tm, hhmmss);
-  if(hhmmss[0] > 9){
-    digit( 1, hhmmss[0]/10);
-  }
-  digit( 6, hhmmss[0]%10);
-  digit(13, hhmmss[1] / 10);
-  digit(18, hhmmss[1] % 10);
-}
-
 // set mask to all masked (b=false) or all unmasked (b = true)
 void fillMask(bool b){
   uint8_t v;
@@ -1498,14 +1388,29 @@ void apply_mask(){
   }
 }
 
-void clock(){
+void set_message(char* msg){
   fillMask(false);
-  uint8_t i = (millis() / 3000) % 5;
-  char *msgs[5] = {"STFU!", " LOL!",      "  :)", "BACK", " OFF!"};
-  fillMask(false);
-  displayString(0, 0, msgs[i]);
+  displayString(0, 0, msg);
   //scrollLeft((millis() / 100) % MatrixWidth);
   apply_mask();
 }
 
+void stfu(){
+  // fill background
+  fireNoise();
+  
+  // display text
+  set_message("STFU!");
+}
 
+void thx(){
+  // fill blue
+  rainbowSolid();
+  
+  // display text
+  set_message("THX!");
+}
+
+void off(){
+  fill_solid(leds, NUM_LEDS, CRGB::Black);
+}

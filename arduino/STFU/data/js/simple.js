@@ -12,7 +12,10 @@ var postValueTimer = {};
 var ignoreColorChange = false;
 
 var patterns = [
-  "Pride",
+    "Pride",
+    "STFU!",
+    "Thanks",
+    "Off",
   "Color Waves",
 
   "Rainbow Twinkles",
