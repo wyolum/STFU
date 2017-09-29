@@ -1,3 +1,9 @@
+credentials.h
+
+# emacs cruft
+*~
+
+
 # Prerequisites
 *.d
 
