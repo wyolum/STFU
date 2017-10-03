@@ -27,8 +27,8 @@
 #include <FastLED.h>
 #include <credentials.h>
 /* ---- credentials.h ----
-char ssid[] = "XXXXXXXXXX";  // your network SSID (name)
-char pass[] = "YYYYYYYYYY";  // your network password
+char ssid[] = "XXX";  // your network SSID (name)
+char pass[] = "YYY";  // your network password
 */
 FASTLED_USING_NAMESPACE
 
@@ -38,7 +38,7 @@ extern "C" {
 
 //#define ULTIM24x24
 //#define ULTIM48x24
-#define ULTIM8x72
+#define ULTIM8x24
 //#define ULTIM16x56
 //#define ULTIM8x48
 
@@ -232,6 +232,8 @@ typedef PatternAndName PatternAndNameList[];
 PatternAndNameList patterns = {
   { stfu,                   "STFU!"},
   { thx,                    "Thanks"},
+  { cool,                   "Cool"},
+  { chill,                  "Chill"},  
   { pride,                  "Pride" },
   { off,                    "Off"},
   { showSolidColor,         "Solid Color" }
@@ -1409,6 +1411,22 @@ void thx(){
   
   // display text
   set_message("THX!");
+}
+
+void cool(){
+  // fill blue
+  rainbowSolid();
+  
+  // display text
+  set_message("COOL:)");
+}
+
+void chill(){
+  // fill blue
+  rainbowSolid();
+  
+  // display text
+  set_message("CHILL");
 }
 
 void off(){
