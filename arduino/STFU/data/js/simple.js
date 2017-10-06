@@ -15,8 +15,11 @@ var patterns = [
     "Pride",
     "STFU!",
     "Thanks",
+    "Cool",
+    "Chill",
+    "Pride",
     "Off",
-  "Color Waves",
+    "Color Waves",
 
   "Rainbow Twinkles",
   "Snow Twinkles",
