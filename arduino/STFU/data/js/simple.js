@@ -18,6 +18,7 @@ var patterns = [
     "Cool",
     "Chill",
     "Pride",
+    "Hello World!!!",
     "Off",
     "Color Waves",
 
