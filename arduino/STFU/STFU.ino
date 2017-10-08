@@ -38,7 +38,8 @@ extern "C" {
 
 //#define ULTIM24x24
 //#define ULTIM48x24
-#define ULTIM8x24
+// #define ULTIM8x24
+#define ULTIM8x48
 //#define ULTIM16x56
 //#define ULTIM8x48
 
@@ -228,8 +229,18 @@ typedef PatternAndName PatternAndNameList[];
 #include "Map.h"
 #include "Noise.h"
 
+void display_ip();
+void stfu();
+void thx();
+void cool();
+void chill();
+void pride();
+void off();
+
 // List of patterns to cycle through.  Each is defined as a separate function below.
 PatternAndNameList patterns = {
+  { display_ip,             "display_ip"},
+  { hello_world,             "Hello World!!!"},
   { stfu,                   "STFU!"},
   { thx,                    "Thanks"},
   { cool,                   "Cool"},
@@ -506,8 +517,7 @@ void broadcastString(String name, String value)
   webSocketsServer.broadcastTXT(json);
 }
 
-void loop() {
-  
+void loop() {  
   // Add entropy to random number generator; we use a lot of it.
   random16_add_entropy(random(65535));
   
@@ -1320,46 +1330,10 @@ const byte digits4x8[8*10] = {
   0x06,0x09,0x09,0x09,0x0e,0x08,0x09,0x06, // 9
 };
 
-void displayString(uint8_t row, uint8_t col, char *s){
+void display_string(uint8_t row, uint8_t col, char *s){
   uint8_t l = strlen(s);
   for(uint8_t i=0; i < l; i++){
-    font_4x8.drawChar(s[i], row, i * 5, true, false);
-  }
-}
-
-void scrollLeft(){
-  scrollLeft(1);
-}
-
-void scrollLeft(uint8_t n_col){
-  bool p;
-  uint8_t row, col;
-
-  // copy first n_col rows to buffer
-  uint8_t buffer[n_col];
-  for(col=0; col < n_col; col++){
-    buffer[col] = 0;
-    for(row=0; row < MatrixHeight; row++){
-      if(getPixel(row, col)){
-	buffer[col] |= (1 << row);
-      }
-      else{
-	buffer[col] &= (0xFF - (1 << row));
-      }
-    }
-  }
-  for(col=0; col < MatrixWidth - n_col; col++){
-    for(row=0; row < MatrixHeight; row++){
-      p = getPixel(row, col + n_col);
-      setPixel(row, col, p);
-    }
-  }
-
-  // copy buffer to end of mask
-  for(col=0; col < n_col; col++){
-    for(row=0; row < MatrixHeight; row++){
-      setPixel(row, col + MatrixWidth - n_col, (buffer[col] >> row) & 1);
-    }
+    font_4x8.drawChar(s[i], row, col + i * 5, true, false);
   }
 }
 
@@ -1392,9 +1366,51 @@ void apply_mask(){
 
 void set_message(char* msg){
   fillMask(false);
-  displayString(0, 0, msg);
-  //scrollLeft((millis() / 100) % MatrixWidth);
+  display_string(0, 0, msg);
   apply_mask();
+}
+
+void scroll_msg(char* msg){
+  uint8_t len = strlen(msg);
+  uint8_t pad = 4;
+  
+  char ext_msg[len + pad + 1];
+  uint8_t i;
+
+  fillMask(false);
+  for(i = 0; i < pad; i++){
+    ext_msg[i] = ' ';
+  }
+  for(int i=0; i < len; i++){
+    ext_msg[pad + i] = msg[i];
+  }
+  ext_msg[len + pad] = 0;
+  display_string(0, -((millis() / 100) % (5 * (len + pad))), ext_msg);
+  apply_mask();
+}
+
+void display_ip(){
+  if(WiFi.localIP()){
+    uint8_t i;
+    String ipString = WiFi.localIP().toString();
+    uint8_t len = ipString.length();
+    char ipchars[len + 1];
+    for(int i=0; i < ipString.length(); i++){
+      ipchars[i] = ipString[i];
+    }
+    ipchars[len] = 0;
+    rainbowSolid();
+    scroll_msg(ipchars);
+  }
+  else{
+    rainbowSolid();
+    scroll_msg("Searching...");
+  }
+}
+
+void hello_world(){
+  rainbowSolid();
+  scroll_msg("Hello World!!!");
 }
 
 void stfu(){
