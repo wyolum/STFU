@@ -240,7 +240,8 @@ void off();
 // List of patterns to cycle through.  Each is defined as a separate function below.
 PatternAndNameList patterns = {
   { display_ip,             "display_ip"},
-  { hello_world,             "Hello World!!!"},
+  { hello_world,            "Hello World!!!"},
+  { WYO,                    "WYO!"},
   { stfu,                   "STFU!"},
   { thx,                    "Thanks"},
   { cool,                   "Cool"},
@@ -1330,10 +1331,10 @@ const byte digits4x8[8*10] = {
   0x06,0x09,0x09,0x09,0x0e,0x08,0x09,0x06, // 9
 };
 
-void display_string(uint8_t row, uint8_t col, char *s){
+void display_string(uint8_t row, uint8_t col, char *s, PixelFont font){
   uint8_t l = strlen(s);
   for(uint8_t i=0; i < l; i++){
-    font_4x8.drawChar(s[i], row, col + i * 5, true, false);
+    font.drawChar(s[i], row, col + i * (font.width), true, false);
   }
 }
 
@@ -1366,13 +1367,13 @@ void apply_mask(){
 
 void set_message(char* msg){
   fillMask(false);
-  display_string(0, 0, msg);
+  display_string(0, 0, msg, font_4x8);
   apply_mask();
 }
 
-void scroll_msg(char* msg){
+void scroll_msg(char* msg, PixelFont font){
   uint8_t len = strlen(msg);
-  uint8_t pad = 4;
+  uint8_t pad = MatrixWidth / font.width;
   
   char ext_msg[len + pad + 1];
   uint8_t i;
@@ -1385,7 +1386,7 @@ void scroll_msg(char* msg){
     ext_msg[pad + i] = msg[i];
   }
   ext_msg[len + pad] = 0;
-  display_string(0, -((millis() / 100) % (5 * (len + pad))), ext_msg);
+  display_string(0, -((millis() / 100) % (font.width * (len + pad))), ext_msg, font);
   apply_mask();
 }
 
@@ -1400,17 +1401,44 @@ void display_ip(){
     }
     ipchars[len] = 0;
     rainbowSolid();
-    scroll_msg(ipchars);
+    scroll_msg(ipchars, font_8x8);
   }
   else{
     rainbowSolid();
-    scroll_msg("Searching...");
+    scroll_msg("Searching...", font_4x8);
   }
 }
 
 void hello_world(){
   rainbowSolid();
-  scroll_msg("Hello World!!!");
+  scroll_msg("Hello World!!!", font_8x8);
+}
+
+void WYO(){
+  uint8_t i, l;
+  
+  fill_solid(leds, NUM_LEDS, CRGB::Yellow);
+  l = (millis() / 500) % 4;
+
+  char *msg = "WYO!";
+  fillMask(false);
+  for(i = 0; i < l; i++){
+    font_8x8.drawChar(msg[i], 0,  0 + i * 8, true, false);
+  }
+  apply_mask();
+  return;
+  if(l == 0){
+  }
+  else if(l == 1){
+    display_string(0, 6, "W", font_4x8);
+  }
+  else if(l == 2){
+    display_string(0, 6, "WY", font_4x8);
+  }
+  else if(l == 3){
+    display_string(0, 6, "WY0", font_4x8);
+  }
+  apply_mask();
 }
 
 void stfu(){
