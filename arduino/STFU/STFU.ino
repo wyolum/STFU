@@ -491,7 +491,7 @@ void setup() {
   Serial.println("Web socket server started");
 
   autoPlayTimeout = millis() + (autoplayDuration * 1000);
-
+  currentPatternIndex = 0; // show IP address on start up.
 
 }
 
