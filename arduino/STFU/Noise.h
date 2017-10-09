@@ -235,7 +235,7 @@ void cloudNoise3d() {
 
 void fireNoise() {
   noisespeedx = 0; // 24;
-  noisespeedy = -32;
+  noisespeedy = 32;
   noisespeedz = 0;
   noisescale = 64;
   colorLoop = 0;
