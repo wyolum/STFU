@@ -552,7 +552,8 @@ void loop() {
   FastLED.show();
 
   // insert a delay to keep the framerate modest
-  FastLED.delay(1000 / FRAMES_PER_SECOND);
+  // FastLED.delay(1000 / FRAMES_PER_SECOND);
+  delay(1000/FRAMES_PER_SECOND);
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
