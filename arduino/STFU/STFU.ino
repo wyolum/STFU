@@ -67,7 +67,7 @@ extern "C" {
 
 //#include "Commands.h"
 
-const bool apMode = false;
+const bool apMode = true;
 
 // AP mode pass
 const char WiFiAPPSK[] = "";
