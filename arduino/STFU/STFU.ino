@@ -67,7 +67,7 @@ extern "C" {
 
 //#include "Commands.h"
 
-const bool apMode = true;
+const bool apMode = false;
 
 // AP mode pass
 const char WiFiAPPSK[] = "";
@@ -1372,7 +1372,7 @@ void set_message(char* msg){
   apply_mask();
 }
 
-void scroll_msg(char* msg, PixelFont font){
+void scroll_msg(char* msg, PixelFont font, uint8_t hold){
   uint8_t len = strlen(msg);
   uint8_t pad = MatrixWidth / font.width;
   
@@ -1387,9 +1387,18 @@ void scroll_msg(char* msg, PixelFont font){
     ext_msg[pad + i] = msg[i];
   }
   ext_msg[len + pad] = 0;
-  display_string(0, -((millis() / 100) % (font.width * (len + pad))), ext_msg, font);
+  display_string(0, -((millis() / hold) % (font.width * (len + pad))), ext_msg, font);
   apply_mask();
 }
+
+void stringCopy(String in, char* out){
+  for(int i = 0; i < in.length(); i++){
+    out[i] = in[i];
+  }
+  out[in.length()] = 0;
+}
+
+uint8_t scroll_hold = 100;
 
 void display_ip(){
   if(WiFi.localIP()){
@@ -1397,22 +1406,32 @@ void display_ip(){
     String ipString = WiFi.localIP().toString();
     uint8_t len = ipString.length();
     char ipchars[len + 1];
-    for(int i=0; i < ipString.length(); i++){
-      ipchars[i] = ipString[i];
-    }
-    ipchars[len] = 0;
+    stringCopy(ipString, ipchars);
     rainbowSolid();
-    scroll_msg(ipchars, font_8x8);
+    scroll_msg(ipchars, font_8x8, scroll_hold);
   }
   else{
     rainbowSolid();
-    scroll_msg("Searching...", font_4x8);
+    if(apMode){
+      uint8_t mac[WL_MAC_ADDR_LENGTH];
+      WiFi.softAPmacAddress(mac);
+      String macID = (String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
+		      String(mac[WL_MAC_ADDR_LENGTH - 1], HEX));
+      macID.toUpperCase();
+      String AP_NameString = "AP Mode: ESP8266-" + macID;
+      char msg[AP_NameString.length()];
+      stringCopy(AP_NameString, msg);
+      scroll_msg(msg, font_8x8, scroll_hold/2);
+    }
+    else{
+      scroll_msg("Searching...", font_8x8, scroll_hold);
+    }
   }
 }
 
 void hello_world(){
   rainbowSolid();
-  scroll_msg("Hello World!!!", font_8x8);
+  scroll_msg("Hello World!!!", font_8x8, scroll_hold);
 }
 
 void WYO(){
