@@ -1366,9 +1366,9 @@ void apply_mask(){
   }
 }
 
-void set_message(char* msg){
+void set_message(char* msg, PixelFont font){
   fillMask(false);
-  display_string(0, 0, msg, font_4x8);
+  display_string(0, 0, msg, font);
   apply_mask();
 }
 
@@ -1424,14 +1424,14 @@ void display_ip(){
       scroll_msg(msg, font_8x8, scroll_hold/2);
     }
     else{
-      scroll_msg("Searching...", font_8x8, scroll_hold);
+      scroll_msg("Searching...", font_8x8, scroll_hold/2);
     }
   }
 }
 
 void hello_world(){
   rainbowSolid();
-  scroll_msg("Hello World!!!", font_8x8, scroll_hold);
+  scroll_msg("Hello World!!!", font_8x8, scroll_hold/2);
 }
 
 void WYO(){
@@ -1466,7 +1466,7 @@ void stfu(){
   fireNoise();
   
   // display text
-  set_message("STFU!");
+  set_message("STFU!", font_4x8);
 }
 
 void thx(){
@@ -1474,7 +1474,7 @@ void thx(){
   rainbowSolid();
   
   // display text
-  set_message("THX!");
+  set_message("THX!", font_8x8);
 }
 
 void cool(){
@@ -1482,7 +1482,7 @@ void cool(){
   rainbowSolid();
   
   // display text
-  set_message("COOL:)");
+  set_message("COOL:)", font_4x8);
 }
 
 void chill(){
@@ -1490,7 +1490,7 @@ void chill(){
   rainbowSolid();
   
   // display text
-  set_message("CHILL");
+  set_message("CHILL", font_4x8);
 }
 
 void off(){
