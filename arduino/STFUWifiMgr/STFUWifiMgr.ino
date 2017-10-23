@@ -20,8 +20,13 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <FS.h>
+#include <ESP8266mDNS.h>
+
 #include "font8x16.h"
 #include "font4x8.h"
+#include "font5x8.h"
+#include "font6x9.h"
 #include "font8x8.h"
 #include "pixel_font.h"
 #include <FastLED.h>
@@ -45,16 +50,13 @@ extern "C" {
 #include <MatrixMaps.h>
 
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266HTTPUpdateServer.h>
 #include <WebSocketsServer.h>
-#include <FS.h>
 #include <EEPROM.h>
 //#include <IRremoteESP8266.h>
 #include "GradientPalettes.h"
 #include <DNSServer.h>
-#include <ESP8266WebServer.h>
 #include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
 
 
@@ -92,6 +94,10 @@ PixelFont font_8x16 = PixelFont(8, 16, 16, font8x16,
 			       setPixel);
 PixelFont font_4x8 = PixelFont(4, 8, 8, font4x8,
 				 setPixel);
+PixelFont font_5x8 = PixelFont(5, 8, 8, font5x8,
+			       setPixel);
+PixelFont font_6x9 = PixelFont(6, 9, 9, font6x9,
+			       setPixel);
 PixelFont font_8x8 = PixelFont(8, 8, 8, font8x8,
 			       setPixel);
 
@@ -1466,7 +1472,7 @@ void stfu(){
   fireNoise();
   
   // display text
-  set_message("STFU!", font_4x8);
+  set_message("STFU!", font_6x9);
 }
 
 void thx(){
