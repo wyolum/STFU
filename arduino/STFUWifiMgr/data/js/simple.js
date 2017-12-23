@@ -15,6 +15,7 @@ var patterns = [
     "Pride",
     "STFU!",
     "Thanks",
+    "Hearsh!",
     "Cool",
     "Chill",
     "Pride",

@@ -42,8 +42,8 @@ extern "C" {
 
 //#define ULTIM24x24
 //#define ULTIM48x24
-// #define ULTIM8x24
-#define ULTIM8x48
+#define ULTIM8x24
+//#define ULTIM8x48
 //#define ULTIM16x56
 //#define ULTIM8x48
 
@@ -239,6 +239,7 @@ typedef PatternAndName PatternAndNameList[];
 
 void display_ip();
 void stfu();
+void hear();
 void thx();
 void cool();
 void chill();
@@ -251,6 +252,7 @@ PatternAndNameList patterns = {
   { hello_world,            "Hello World!!!"},
   { WYO,                    "WYO!"},
   { stfu,                   "STFU!"},
+  { hear,                   "Hearsh!"},
   { thx,                    "Thanks"},
   { cool,                   "Cool"},
   { chill,                  "Chill"},  
@@ -1474,6 +1476,23 @@ void stfu(){
   // display text
   set_message("STFU!", font_6x9);
 }
+
+void hear(){
+  // fill background
+  //cloudNoise();
+  
+  // display text
+  //set_message("HEAR!", font_6x9);
+  uint8_t i;
+  String ipString = "HeArSh";
+  uint8_t len = ipString.length();
+  char ipchars[len + 1];
+  stringCopy(ipString, ipchars);
+  rainbowSolid();
+  scroll_msg(ipchars, font_8x8, scroll_hold);
+}
+
+
 
 void thx(){
   // fill blue
